@@ -121,7 +121,6 @@ contract RamenYa is PreparedBowls {
     }
 
     // you can only consume ramen that you bought
-    // consumeRamen, it decomposes the ramen into ingredients
     function _itadakimasu(Ramen storage _ramenId) private onlyOwner {
         require(_ramenId.wasConsumed == false);
         extractIngredientsFromRamen(_ramenId);
