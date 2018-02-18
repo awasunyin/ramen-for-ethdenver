@@ -3,32 +3,55 @@ pragma solidity ^0.4.17;
 import "./Bowls.sol";
 import "./OpenZeppelin/SafeMath.sol";
 
-contract RamenYa is PreparedBowls, SafeMath {
+contract RamenYa is PreparedBowls {
+
+    event DingRamenReady(uint256 _ramenId, uint16 _umamiLevel);
 
     struct Ramen {
         uint256 ramenId;
-        uint256 toppingSKU;
-        uint16 noodleFlavourDepthLevel;
-        uint16 brothFlavourDepthLevel;
         uint16 umamiLevel;
-
+        bool wasDelivered;
+        bool wasConsumed;
     }
+
+    mapping (uint => address) public ramenToOwner;
+    mapping (address => uint) public ownerRamenCount;
 
     // plural of ramen is ramen
     Ramen[] public ramen;
 
-    //TODO: addTopping
-    function _addTopping(uint256 _bowlId, uint256 _ingredientSKU) private onlyOwner {
-        require(_addingToppingPermitted(_bowlId, _ingredientSKU) == true);
-
+    // ramen are only complete when there is at least one topping added
+    function _addTopping(
+        Bowl storage _bowlId, 
+        Ingredient storage _topping, 
+        Ingredient storage _noodles, 
+        Ingredient storage _broth
+        ) private onlyOwner 
+        {
+        if (_addingToppingPermitted(_bowlId, _topping.ingredientSKU, _topping.ingredientType) == true) {
+            uint256 randamen = uint256(keccak256(_bowlId, _topping.ingredientSKU));
+            uint16 umamiLevel = _calculateUmamiLevel(
+                _bowlId.bowlId, 
+                _topping.ingredientSKU,
+                _topping.ingredientFlavorDepth,
+                _topping.ingredientSeason,
+                _noodles.ingredientFlavorDepth, 
+                _noodles.ingredientSeason,
+                _broth.ingredientFlavorDepth,
+                _broth.ingredientSeason);
+            uint256 ramenId = ramen.push(Ramen(randamen, umamiLevel, false, false)) - 1;
+            ramenToOwner[ramenId] = msg.sender;
+            ownerRamenCount[msg.sender]++;
+            DingRamenReady(ramenId, umamiLevel);
+        }
     }
 
-    function _addingToppingPermitted(uint256 _bowlId, uint256 _ingredientSKU, uint16 _ingredientType) private {
+    function _addingToppingPermitted(Bowl storage _bowlId, uint256 _ingredientSKU, uint16 _ingredientType) private view returns(bool) {
         // check that the ingredient is owned by this address
-        if (require(_ingredientIsOwnedByCaller(_ingredientSKU) == true) && _ingredientType == 3){
+        if (_ingredientIsOwnedByCaller(_ingredientSKU) == true && _ingredientType == 3 && _bowlId.isBowlUsed == false) {
             return true;
         } else {
-            false;
+            return false;
         }
     }
 
@@ -41,7 +64,7 @@ contract RamenYa is PreparedBowls, SafeMath {
         uint16 _noodlesSeason,
         uint16 _brothFlavourDepth,
         uint16 _brothSeason) 
-        returns(uint16) 
+        private view returns(uint16) 
         {
         uint randami = uint(keccak256(_bowlId, _toppingSKU)); 
         uint16 umami = uint16(randami % ingredientCharacteristicsModulus);
@@ -69,18 +92,58 @@ contract RamenYa is PreparedBowls, SafeMath {
     }
 
     // calculate the bonus umami that comes from ingredients
-    function _calculateBonumami(uint16 _ingredientFlavourDepth, uint16 _ingredirentSeason) private returns(uint16) {
-        if (whatSeasonIsIt == _ingredirentSeason) {
-            uint16 bonUmami = mul(_ingredientFlavourDepth, 2);
+    function _calculateBonumami(uint16 _ingredientFlavourDepth, uint16 _ingredirentSeason) private view returns(uint16) {
+        if (whatSeasonIsIt() == _ingredirentSeason) {
+            // TODO: use SafeMath (could not use mul here due to access issues)
+            uint16 bonUmami = uint16(_ingredientFlavourDepth * 2);
             return bonUmami;
         } else {
             return _ingredientFlavourDepth;
         }
     }
 
-    //TODO: consumeRamen
+    // transfers ramen
+    function _deliverRamen(address _newOwner, Ramen storage _ramenId) private onlyOwner {
+        require(_newOwner != address(0));
+        require(_ramenId.wasDelivered == false);
+        OwnershipTransferred(owner, _newOwner);
+        owner = _newOwner;
+        // once delivered it can only be consumed
+        _ramenId.wasDelivered = true;
+    }
 
+    // you can only consume ramen that you bought
+    // consumeRamen, it decomposes the ramen into ingredients
+    function _itadakimasu(Ramen storage _ramenId) private onlyOwner {
+        require(_ramenId.wasConsumed == false);
 
+    }
 
+    function extractIngredientsFromRamen(Ramen storage _id) private {
+        uint256 randSKU = _generateRandomId(_id.ramenId);
+        // change the generation of these are dependant on one variable only!
+        uint16 randType = _ingredientIsWhatType(randSKU);
+        uint16 randFlavourDepth = _ingredientIsWhatFlavourDepth(randSKU);
+        uint16 randSeason = _ingredientIsWhatSeason(randSKU);
+        
+        // TODO: make the number of ingredients random, now it's fixed to one
+        // TODO: ingrediennt qualities will be influenced by 
+        // the umami level of ramen
+        _harvestIngredient(randSKU, randType, randFlavourDepth, randSeason);
+    }
 
+    // TODO: tribute to Cryptokitties, kitties get discounts
+    function _feedRamenToCryptoKitty() private onlyOwner {
+
+    }
+
+    // TODO: tribute to CryptoZombies, zombies get discounts
+    function _feedRamenToZombies() private onlyOwner {
+
+    }
+
+    // TODO: tribute to Blockgeeks, devs get discounts
+    function _feedRamentoBlockgeeks() private onlyOwner {
+
+    }
 }

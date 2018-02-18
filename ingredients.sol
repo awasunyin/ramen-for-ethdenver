@@ -1,11 +1,10 @@
 pragma solidity ^0.4.17;
 
-//import ".OpenZeppelin/SafeMath.sol";
-// import ".OpenZeppelin/ERC721.sol";
+import "./OpenZeppelin/ERC721.sol";
 import "./OpenZeppelin/Ownable.sol";
 
 
-contract IngredientMarketplace is Ownable {
+contract IngredientMarketplace is Ownable, ERC721 {
 
     // does it need to be a state variable?
     // storage or memory?
@@ -22,10 +21,10 @@ contract IngredientMarketplace is Ownable {
     struct Ingredient {
         // unique stock keeping unit
         uint256 ingredientSKU;
-        string ingredientName;
         uint16 ingredientType;
         uint16 ingredientFlavorDepth;
         uint16 ingredientSeason;
+        bool ingredientUsed;
     }
 
     // list all the ingredients available
@@ -36,13 +35,13 @@ contract IngredientMarketplace is Ownable {
     mapping (address => uint) ownerIngredientCount;
 
     // NOTE: keccak256 costs 30 gas + 6 gas (per word)
-    function _generateRandomCharacteristic(uint _sku) private view returns (uint) {
+    function _generateRandomCharacteristic(uint _sku) internal view returns (uint) {
         uint rand = uint(keccak256(_sku, block.number, block.difficulty));
         return rand % ingredientCharacteristicsModulus;
     }
     
-    function _harvestIngredient(uint256 _ingredientSKU, string _ingredientName, uint16 _ingredientType, uint16 _ingredientFlavorDepth, uint16 _ingredientSeason) private {
-        uint256 id = ingredients.push(Ingredient(_ingredientSKU, _ingredientName, _ingredientType, _ingredientFlavorDepth, _ingredientSeason)) - 1;
+    function _harvestIngredient(uint256 _ingredientSKU, string _ingredientName, uint16 _ingredientType, uint16 _ingredientFlavorDepth, uint16 _ingredientSeason) internal {
+        uint256 id = ingredients.push(Ingredient(_ingredientSKU, _ingredientType, _ingredientFlavorDepth, _ingredientSeason, false)) - 1;
         ingredientToOwner[id] = msg.sender;
         ownerIngredientCount[msg.sender]++;
         IngredientForSale(id, _ingredientSKU, _ingredientName);
@@ -53,12 +52,12 @@ contract IngredientMarketplace is Ownable {
     // to some degree. Bad actors in the mining community can for example run a 
     // casino payout function on a chosen hash and just retry a different hash 
     // if they did not receive any money.
-    function _generateRandomId(string _str) private view returns (uint) {
+    function _generateRandomId(string _str) internal view returns (uint) {
         uint256 rand = uint256(keccak256(_str, block.number, block.difficulty));
         return rand % ingredientIdModulus;
     }
 
-    function _farmRandomIngredient(string _name) public {
+    function _farmRandomIngredient(string _name) private {
         uint256 randSKU = _generateRandomId(_name);
         // change the generation of these are dependant on one variable only!
         uint16 randType = _ingredientIsWhatType(randSKU);
@@ -67,7 +66,7 @@ contract IngredientMarketplace is Ownable {
         _harvestIngredient(randSKU, _name, randType, randFlavourDepth, randSeason);
     }
 
-    function _ingredientIsWhatType(uint _ingredientSKU) private view returns(uint16) {
+    function _ingredientIsWhatType(uint _ingredientSKU) internal view returns(uint16) {
         uint16 ingredientType = uint16(_generateRandomCharacteristic(_ingredientSKU));
         
         // noodles
@@ -83,7 +82,7 @@ contract IngredientMarketplace is Ownable {
         }
     }
 
-    function _ingredientIsWhatFlavourDepth(uint _ingredientSKU) private view returns(uint16) {
+    function _ingredientIsWhatFlavourDepth(uint _ingredientSKU) internal view returns(uint16) {
         uint16 ingredientFlavourDepth = uint16(_generateRandomCharacteristic(_ingredientSKU));
         
         // common flavour depth 
@@ -108,7 +107,7 @@ contract IngredientMarketplace is Ownable {
      // for the future, ingredient generation might come with bonuses or special
      // characteristics depending on the season: e.g. veggies have higher flavour
      // when issued in autumn or meat has more flavour when issued in winter.
-     function _ingredientIsWhatSeason(uint _ingredientSKU) private view returns(uint16) {
+     function _ingredientIsWhatSeason(uint _ingredientSKU) internal view returns(uint16) {
         uint16 ingredientSeason = uint16(_generateRandomCharacteristic(_ingredientSKU));
         // spring
         if (ingredientSeason <= 25) {
