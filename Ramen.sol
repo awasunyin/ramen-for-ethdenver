@@ -2,6 +2,7 @@ pragma solidity ^0.4.17;
 
 import "./Bowls.sol";
 import "./OpenZeppelin/SafeMath.sol";
+import "./OpenZeppelin/ERC721.sol";
 
 contract RamenYa is PreparedBowls {
 
@@ -116,20 +117,22 @@ contract RamenYa is PreparedBowls {
     // consumeRamen, it decomposes the ramen into ingredients
     function _itadakimasu(Ramen storage _ramenId) private onlyOwner {
         require(_ramenId.wasConsumed == false);
-
+        extractIngredientsFromRamen(_ramenId);
     }
 
     function extractIngredientsFromRamen(Ramen storage _id) private {
-        uint256 randSKU = _generateRandomId(_id.ramenId);
+        uint256 randSKU = uint256(keccak256(_id.ramenId));
         // change the generation of these are dependant on one variable only!
+        // TODO: ingrediennt qualities will be influenced by 
+        // the umami level of ramen
         uint16 randType = _ingredientIsWhatType(randSKU);
         uint16 randFlavourDepth = _ingredientIsWhatFlavourDepth(randSKU);
         uint16 randSeason = _ingredientIsWhatSeason(randSKU);
-        
-        // TODO: make the number of ingredients random, now it's fixed to one
-        // TODO: ingrediennt qualities will be influenced by 
-        // the umami level of ramen
-        _harvestIngredient(randSKU, randType, randFlavourDepth, randSeason);
+        uint256 id = ingredients.push(Ingredient(randSKU, randType, randFlavourDepth, randSeason, false)) - 1;
+        // assign this new ingredient to owner
+        ingredientToOwner[id] = msg.sender;
+        ownerIngredientCount[msg.sender]++;
+        IngredientForSale(id, randSKU);
     }
 
     // TODO: tribute to Cryptokitties, kitties get discounts

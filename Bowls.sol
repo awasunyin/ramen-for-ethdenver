@@ -3,10 +3,10 @@ pragma solidity ^0.4.17;
 import "./OpenZeppelin/BasicToken.sol";
 import "./Ingredients.sol";
 
-
 contract PreparedBowls is IngredientMarketplace {
 
     uint lastUpdated;
+    // it takes 30 minutes to cook the bowl
     uint cookingTimePerBowl = 30 minutes;
 
     // ding! the bowl is ready for the topping!
@@ -24,6 +24,7 @@ contract PreparedBowls is IngredientMarketplace {
         uint256 bowlId; 
         // remember to add a cooldown feature
         uint32 cookingReadyTime;
+        // was this bowl already used
         bool isBowlUsed;
     }
 
@@ -120,5 +121,4 @@ contract PreparedBowls is IngredientMarketplace {
         delete bowlToOwner[_bowlToOwnerId];
         BurnedBowl(_bowlToOwnerId, msg.sender);
     }
-
 }

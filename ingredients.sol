@@ -14,7 +14,7 @@ contract IngredientMarketplace is Ownable, ERC721 {
     uint256 ingredientCharacteristicsModulus = 10 ** ingredientCharacteristicLength;
 
     // event when a new ingredient is harvested
-    event IngredientForSale(uint256 _sku, uint256 _ingredientSKU, string _ingredientName);
+    event IngredientForSale(uint256 _sku, uint256 _ingredientSKU);
     event BurnedIngredient(uint _sku, address _owner);
 
     // ingredients have one unique id
@@ -40,11 +40,11 @@ contract IngredientMarketplace is Ownable, ERC721 {
         return rand % ingredientCharacteristicsModulus;
     }
     
-    function _harvestIngredient(uint256 _ingredientSKU, string _ingredientName, uint16 _ingredientType, uint16 _ingredientFlavorDepth, uint16 _ingredientSeason) internal {
+    function _harvestIngredient(uint256 _ingredientSKU, uint16 _ingredientType, uint16 _ingredientFlavorDepth, uint16 _ingredientSeason) internal {
         uint256 id = ingredients.push(Ingredient(_ingredientSKU, _ingredientType, _ingredientFlavorDepth, _ingredientSeason, false)) - 1;
         ingredientToOwner[id] = msg.sender;
         ownerIngredientCount[msg.sender]++;
-        IngredientForSale(id, _ingredientSKU, _ingredientName);
+        IngredientForSale(id, _ingredientSKU);
     }
 
     // TODO: Find a better source of randomness
@@ -63,7 +63,7 @@ contract IngredientMarketplace is Ownable, ERC721 {
         uint16 randType = _ingredientIsWhatType(randSKU);
         uint16 randFlavourDepth = _ingredientIsWhatFlavourDepth(randSKU);
         uint16 randSeason = _ingredientIsWhatSeason(randSKU);
-        _harvestIngredient(randSKU, _name, randType, randFlavourDepth, randSeason);
+        _harvestIngredient(randSKU, randType, randFlavourDepth, randSeason);
     }
 
     function _ingredientIsWhatType(uint _ingredientSKU) internal view returns(uint16) {
