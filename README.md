@@ -1,4 +1,7 @@
 # RamenYa.world 
+
+The temporary static homepage and its theme for this project was generated with jekyll and an open-sourced theme, apologies for the noisy files in the master branch. (シ_ _)シ
+
 *Status: Initial Prototype.*
 Ramen-Ya (from Japanese, _Ramen Shop_) is a collaborative platform for collectibles. A grosso modo, it is composed by an ecosystem of ERC721 style tokens (AKA: non fungible tokens). Ramen is a great source of energy that you might need
 after playing with CryptoKitties or just all the calories that you might burn while you try to trading with crypto using exchanges or simply because you're a developer and you need to feed yourself time to time. Here are some inspiring quotes around ramen:
@@ -162,3 +165,9 @@ Once Ramen has been formed, meaning that you bought a browl and added a topping,
 
 As tribute to the producers of my learning content and (personal) continuous learning of smart contract development, there 
 will be interfaces with existing ERC721 tokens. The idea is that, e.g., if ramen is delivered to Kitties, the Kitty will give you in return certain ingredients (freshly caught birds, fish, etc). And who knows, maybe if you feed the same kitty many times, the kitty wants to stay with you? (☆▽☆)
+
+## Challenges & Future Main Design Changes
+1. True randomness of keccak256
+2. The total gas price of every contract
+3. Check on probabilities, are those likelihoods actually correct?
+4. Create RamenCoin, an ERC20 token, as one of the payment methods for participating in the game
