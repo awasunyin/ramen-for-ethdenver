@@ -1,6 +1,9 @@
 # RamenYa.world 
 *Status: Initial Prototype.*
-Ramen-Ya (from Japanese, _Ramen Shop_) is a collaborative platform for collectibles. A grosso modo, it is composed by an ecosystem of ERC721 style tokens (AKA: non fungible tokens). 
+Ramen-Ya (from Japanese, _Ramen Shop_) is a collaborative platform for collectibles. A grosso modo, it is composed by an ecosystem of ERC721 style tokens (AKA: non fungible tokens). Ramen is a great source of energy that you might need
+after playing with CryptoKitties or just all the calories that you might burn while you try to trading with crypto using exchanges or simply because you're a developer and you need to feed yourself time to time. Here are some inspiring quotes around ramen:
+> The only men I need is Ramen - Anonymous
+> Ramen is a dish that's very high in calories and sodium. One way to make it slightly healthier is to leave the soup and just eat the noodles. – Masaharu Morimoto
 
 ## Introduction to RamenYa's System
 Unlike other ERC721 collectibles, in Ramen-Ya not all the collectibles are immediately transferable: it will only be possible to sell or consume once a "Ramen" bowl (noodles + soup + topping) has been cooked. Bowls (noodles + soup) can be transferred, but as Bowls do not profit from the potential level of umami (from Japanese, level of savoriness) the value of it is limited. Ingredients cannot be transferred, they can only be combined to form Bowls.
