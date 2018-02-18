@@ -26,29 +26,23 @@ contract IngredientMarketplace {
         uint16 ingredientSeason;
     }
 
-    struct Bowl {
-        uint256 ingredient1SKU;
-        uint256 ingredient2SKU;
-        // the id of the cooking session
-        uint256 cookingSessionId; 
-        // remember to add a cooldown feature
-    }
-
     // list all the ingredients available
     Ingredient[] public ingredients;
 
-    // list all the bowls available
-    Bowl[] public bowls;
+    // mappings
+    mapping (uint => address) public ingredientToOwner;
+    mapping (address => uint) ownerIngredientCount;
 
-    // 
     function _generateRandomCharacteristic(uint _sku) private view returns (uint) {
         uint rand = uint(keccak256(_sku, block.number, block.difficulty));
         return rand % ingredientCharacteristicModulus;
     }
     
     function _harvestIngredient(uint256 _ingredientSKU, string _ingredientName, uint16 _ingredientType, uint16 _ingredientFlavorDepth, uint16 _ingredientSeason) private {
-        uint256 sku = ingredients.push(Ingredient(_ingredientSKU, _ingredientName, _ingredientType, _ingredientFlavorDepth, _ingredientSeason)) - 1;
-        IngredientForSale(sku, _ingredientSKU, _ingredientName);
+        uint256 id = ingredients.push(Ingredient(_ingredientSKU, _ingredientName, _ingredientType, _ingredientFlavorDepth, _ingredientSeason)) - 1;
+        ingredientToOwner[id] = msg.sender;
+        ownerIngredientCount[msg.sender]++;
+        IngredientForSale(id, _ingredientSKU, _ingredientName);
     }
 
     function _generateRandomId(string _str) private view returns (uint) {
@@ -57,51 +51,25 @@ contract IngredientMarketplace {
     }
 
     function _farmRandomIngredient(string _name) public {
-        // change this
         uint256 randSKU = _generateRandomId(_name);
+        // change the generation of these are dependant on one variable only!
         uint16 randType = _ingredientIsWhatType(randSKU);
         uint16 randFlavourDepth = _ingredientIsWhatFlavourDepth(randSKU);
         uint16 randSeason = _ingredientIsWhatSeason(randSKU);
         _harvestIngredient(randSKU, _name, randType, randFlavourDepth, randSeason);
     }
 
-    function _prepareBowl(uint256 _ingredient1, uint16 _ingredient1Type,  uint256 _ingredient2, uint16 _ingredient2Type) internal returns(uint) {
-        require(_isCookingPermitted(_ingredient1, _ingredient1Type, _ingredient2, _ingredient2Type) == true);
-        uint256 cookingSessionId = uint256(keccak256(_ingredient1, _ingredient2));
-        // prepare the bowl
-        uint256 bowlId = bowls.push(Bowl(_ingredient1, _ingredient2, cookingSessionId)) - 1;
-        DingBowlReady(_ingredient1, _ingredient2, cookingSessionId, bowlId);
-    }
-
-    function _isCookingPermitted(uint _ingredient1, uint _ingredient1Type, uint _ingredient2, uint _ingredient2Type) internal pure returns (bool) {
-        // you cannot an ingredient with itself!
-        require(_ingredient1 != _ingredient2);
-
-        // only noodles and broth can be cooked
-        require(_ingredient1Type != 3 && _ingredient2Type != 3);
-        
-        // if the first ingredient is noodle, then 2 has to be broth
-        if (_ingredient1Type == 1) {
-            require(_ingredient2Type == 2);
-            return true;
-        } 
-        // viceversa
-        if (_ingredient1Type == 2) {
-            require(_ingredient2Type == 1);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     function _ingredientIsWhatType(uint _ingredientSKU) private view returns(uint16) {
         uint16 ingredientType = uint16(_generateRandomCharacteristic(_ingredientSKU));
         
+        // noodles
         if (ingredientType <= 34) {
             return 1;
         }
+        // broth
         if (ingredientType <= 77) {
             return 2;
+        // topping
         } else {
             return 3;
         }
@@ -140,6 +108,27 @@ contract IngredientMarketplace {
         // winter
         } else {
             return 4;
+        }
+    }
+
+    function _isCookingPermitted(uint _ingredient1, uint _ingredient1Type, uint _ingredient2, uint _ingredient2Type) internal pure returns (bool) {
+        // you cannot an ingredient with itself!
+        require(_ingredient1 != _ingredient2);
+
+        // only noodles and broth can be cooked
+        require(_ingredient1Type != 3 && _ingredient2Type != 3);
+        
+        // if the first ingredient is noodle, then 2 has to be broth
+        if (_ingredient1Type == 1) {
+            require(_ingredient2Type == 2);
+            return true;
+        } 
+        // viceversa
+        if (_ingredient1Type == 2) {
+            require(_ingredient2Type == 1);
+            return true;
+        } else {
+            return false;
         }
     }
 }
