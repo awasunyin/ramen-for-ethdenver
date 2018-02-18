@@ -1,6 +1,6 @@
 # Site
 title:              Ramen-Ya
-bio:                'Hello, Decentralized Ramen!'
+bio:                'Hello, Decentralized Ramen! Build Ramen with other players on the Ethereum Blockchain!'
 description:        "Build Ramen with other players on the Ethereum Blockchain!"
 reading_time:       true
 words_per_minute:   200
@@ -70,7 +70,7 @@ gems:
   - jekyll-gist
 
 jekyll-mentions:
-    base_url: https://github.com/awasunyin/ramen-for-ethdenver
+    base_url: http://ramenya.world
 
 # Exclude list
 exclude: [README.md, Gemfile, Gemfile.lock, node_modules, gulpfile.js, package.json, _site, src, vendor, CNAME, LICENSE, Rakefile]
