@@ -2,7 +2,7 @@
 
 The temporary static homepage and its theme for this project was generated with jekyll and an open-sourced theme, apologies for the noisy files in the master branch. (シ_ _)シ
 
-![homepage]("/assets/img/homepage.png")
+![homepage]("./assets/img/homepage.png")
 
 *Status: Initial Prototype.*
 Ramen-Ya (from Japanese, _Ramen Shop_) is a collaborative platform for collectibles. A grosso modo, it is composed by an ecosystem of ERC721 style tokens (AKA: non fungible tokens). Ramen is a great source of energy that you might need
