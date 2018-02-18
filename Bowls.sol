@@ -3,7 +3,12 @@ pragma solidity ^0.4.17;
 import "./OpenZeppelin/BasicToken.sol";
 import "./Ingredients.sol";
 
+// TODO: Make it fully ERC721 compliant
+
 contract PreparedBowls is IngredientMarketplace {
+
+    string public constant name = "Bowls";  
+    string public constant symbol = "BOWL";
 
     uint lastUpdated;
     // it takes 30 minutes to cook the bowl

@@ -3,8 +3,14 @@ pragma solidity ^0.4.17;
 import "./OpenZeppelin/ERC721.sol";
 import "./OpenZeppelin/Ownable.sol";
 
+// TODO: Make it fully ERC721 compliant
+// TODO: Ingredients Initial/Reccurent Generation
+// TODO: Ingredients Auction
 
 contract IngredientMarketplace is Ownable, ERC721 {
+
+    string public constant name = "Ingredients";  
+    string public constant symbol = "INGRD";
 
     // does it need to be a state variable?
     // storage or memory?
@@ -182,6 +188,4 @@ contract IngredientMarketplace is Ownable, ERC721 {
             return 4;
         }
     }
-    // TODO: Ingredients Generation
-    // TODO: Ingredients Auction
 }

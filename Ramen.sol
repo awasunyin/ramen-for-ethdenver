@@ -4,7 +4,14 @@ import "./Bowls.sol";
 import "./OpenZeppelin/SafeMath.sol";
 import "./OpenZeppelin/ERC721.sol";
 
+// TODO: Make it fully ERC721 compliant
+// TODO: Add interfaces to other ERC721 tokens as tributes (specified at the end)
+
+
 contract RamenYa is PreparedBowls {
+
+    string public constant name = "Ramen";  
+    string public constant symbol = "RAMEN";
 
     event DingRamenReady(uint256 _ramenId, uint16 _umamiLevel);
 
