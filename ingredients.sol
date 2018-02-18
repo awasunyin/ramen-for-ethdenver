@@ -1,7 +1,7 @@
 pragma solidity ^0.4.17;
 
-//import "./SafeMath.sol";
-// import "./ERC721.sol";
+//import ".OpenZeppelin/SafeMath.sol";
+// import ".OpenZeppelin/ERC721.sol";
 
 contract IngredientMarketplace {
 
@@ -33,6 +33,7 @@ contract IngredientMarketplace {
     mapping (uint => address) public ingredientToOwner;
     mapping (address => uint) ownerIngredientCount;
 
+    // NOTE: keccak256 costs 30 gas + 6 gas (per word)
     function _generateRandomCharacteristic(uint _sku) private view returns (uint) {
         uint rand = uint(keccak256(_sku, block.number, block.difficulty));
         return rand % ingredientCharacteristicModulus;
@@ -78,15 +79,19 @@ contract IngredientMarketplace {
     function _ingredientIsWhatFlavourDepth(uint _ingredientSKU) private view returns(uint16) {
         uint16 ingredientFlavourDepth = uint16(_generateRandomCharacteristic(_ingredientSKU));
         
+        // common flavour depth 
         if (ingredientFlavourDepth <= 69) {
             return 1;
         }
+        // semi rare flavour depth 
         if (ingredientFlavourDepth <= 94) {
             return 2;
         } 
-        
+        // rare flavour depth
         if (ingredientFlavourDepth <= 97) {
             return 3; 
+        
+        // mythical flavour depth
         } else {
             return 4;
         }
@@ -131,4 +136,7 @@ contract IngredientMarketplace {
             return false;
         }
     }
+
+    // TODO: Ingredients Generation
+    // TODO: Ingredients Auction
 }

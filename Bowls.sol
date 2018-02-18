@@ -1,8 +1,8 @@
 pragma solidity ^0.4.17;
 
-import "./BasicToken.sol";
+import "./OpenZeppelin/BasicToken.sol";
+import "./OpenZeppelin/Ownable.sol";
 import "./Ingredients.sol";
-import "./Ownable.sol";
 
 
 contract PreparedBowls is IngredientMarketplace, Ownable {
@@ -68,16 +68,17 @@ contract PreparedBowls is IngredientMarketplace, Ownable {
         return (now >= (lastUpdated + 30 minutes));
     }
 
-     function _startCookingTime(Bowl storage _cookingSessionId) internal {
-        _cookingSessionId.cookingReadyTime = uint32(now + cookingTimePerBowl);
+     function _startCookingTime(Bowl memory _bowlId) internal {
+        _bowlId.cookingReadyTime = uint32(now + cookingTimePerBowl);
     }
 
-    function _isReady(Bowl storage _bowlId) internal view returns (bool) {
+    function _isReady(Bowl memory _bowlId) internal view returns (bool) {
         return (_bowlId.cookingReadyTime <= now);
     }
 
-    function transferOwnership(address _newOwner) public onlyOwner {
+    function transferOwnership(address _newOwner, Bowl memory _bowlId) public onlyOwner {
         require(_newOwner != address(0));
+        require(_isReady(_bowlId) == true);
         OwnershipTransferred(owner, _newOwner);
         owner = _newOwner;
     }
