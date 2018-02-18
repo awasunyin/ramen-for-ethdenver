@@ -1,15 +1,15 @@
 pragma solidity ^0.4.17;
 
 import "./OpenZeppelin/BasicToken.sol";
-import "./OpenZeppelin/Ownable.sol";
 import "./Ingredients.sol";
 
 
-contract PreparedBowls is IngredientMarketplace, Ownable {
+contract PreparedBowls is IngredientMarketplace {
 
     uint lastUpdated;
     uint cookingTimePerBowl = 30 minutes;
 
+    event DingBowlReady(uint256 _ingredient1, uint256 _ingredient2, uint256 _cookingSessionId, uint256 _id);
     event BurnedBowl(uint _bowlToOwnerIndex, address _owner);
 
     struct Bowl {
@@ -37,6 +37,9 @@ contract PreparedBowls is IngredientMarketplace, Ownable {
         bowlToOwner[bowlId] = msg.sender;
         ownerBowlCount[msg.sender]++;
         DingBowlReady(_ingredient1, _ingredient2, cookingSessionId, bowlId);
+        // burn the ingredients
+        burnIngredient(_ingredient1);
+        burnIngredient(_ingredient2);
     }
 
    function _isCookingPermitted(uint _ingredient1, uint _ingredient1Type, uint _ingredient2, uint _ingredient2Type) internal pure returns (bool) {
@@ -68,21 +71,30 @@ contract PreparedBowls is IngredientMarketplace, Ownable {
         return (now >= (lastUpdated + 30 minutes));
     }
 
-     function _startCookingTime(Bowl memory _bowlId) internal {
+     function _startCookingTime(Bowl storage _bowlId) private {
         _bowlId.cookingReadyTime = uint32(now + cookingTimePerBowl);
     }
 
-    function _isReady(Bowl memory _bowlId) internal view returns (bool) {
+    function _isReady(Bowl storage _bowlId) internal view returns (bool) {
         return (_bowlId.cookingReadyTime <= now);
     }
 
-    function transferOwnership(address _newOwner, Bowl memory _bowlId) public onlyOwner {
+    function _transferOwnership(address _newOwner, Bowl storage _bowlId) private onlyOwner {
         require(_newOwner != address(0));
         require(_isReady(_bowlId) == true);
         OwnershipTransferred(owner, _newOwner);
         owner = _newOwner;
     }
 
+    // to burn ingredients once they're used for cooking
+    function burnIngredient(uint256 _ingredientSKU) internal onlyOwner {
+        // check that the owner actually has this ingredient!
+        require(ingredientToOwner[_ingredientSKU] == msg.sender);
+        delete ingredientToOwner[_ingredientSKU];
+        BurnedIngredient(_ingredientSKU, msg.sender);
+    }
+
+    // to burn the bowl once it has transfered
     function burnBowl(uint256 _bowlToOwnerId) private onlyOwner {
         require(bowlToOwner[_bowlToOwnerId] == msg.sender);
         // no need to require value <= totalSupply, since that would imply the

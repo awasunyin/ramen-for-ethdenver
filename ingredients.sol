@@ -2,19 +2,21 @@ pragma solidity ^0.4.17;
 
 //import ".OpenZeppelin/SafeMath.sol";
 // import ".OpenZeppelin/ERC721.sol";
+import "./OpenZeppelin/Ownable.sol";
 
-contract IngredientMarketplace {
+
+contract IngredientMarketplace is Ownable {
 
     // does it need to be a state variable?
     // storage or memory?
     uint256 ingredientIdLength = 12;
     uint256 ingredientIdModulus = 10 ** ingredientIdLength;
-    uint256 ingredientCharacteristicModulus = 2;
-    uint256 ingredientCharacteristicsModulus = 10 ** ingredientCharacteristicModulus;
+    uint256 ingredientCharacteristicLength = 2;
+    uint256 ingredientCharacteristicsModulus = 10 ** ingredientCharacteristicLength;
 
     // event when a new ingredient is harvested
     event IngredientForSale(uint256 _sku, uint256 _ingredientSKU, string _ingredientName);
-    event DingBowlReady(uint256 _ingredient1, uint256 _ingredient2, uint256 _cookingSessionId, uint256 _id);
+    event BurnedIngredient(uint _sku, address _owner);
 
     // ingredients have one unique id
     struct Ingredient {
@@ -36,7 +38,7 @@ contract IngredientMarketplace {
     // NOTE: keccak256 costs 30 gas + 6 gas (per word)
     function _generateRandomCharacteristic(uint _sku) private view returns (uint) {
         uint rand = uint(keccak256(_sku, block.number, block.difficulty));
-        return rand % ingredientCharacteristicModulus;
+        return rand % ingredientCharacteristicsModulus;
     }
     
     function _harvestIngredient(uint256 _ingredientSKU, string _ingredientName, uint16 _ingredientType, uint16 _ingredientFlavorDepth, uint16 _ingredientSeason) private {
@@ -46,6 +48,11 @@ contract IngredientMarketplace {
         IngredientForSale(id, _ingredientSKU, _ingredientName);
     }
 
+    // TODO: Find a better source of randomness
+    // Note: Both the timestamp and the block hash can be influenced by miners
+    // to some degree. Bad actors in the mining community can for example run a 
+    // casino payout function on a chosen hash and just retry a different hash 
+    // if they did not receive any money.
     function _generateRandomId(string _str) private view returns (uint) {
         uint256 rand = uint256(keccak256(_str, block.number, block.difficulty));
         return rand % ingredientIdModulus;
@@ -97,6 +104,10 @@ contract IngredientMarketplace {
         }
     }
 
+     // TODO: season is not fully used in this implementation
+     // for the future, ingredient generation might come with bonuses or special
+     // characteristics depending on the season: e.g. veggies have higher flavour
+     // when issued in autumn or meat has more flavour when issued in winter.
      function _ingredientIsWhatSeason(uint _ingredientSKU) private view returns(uint16) {
         uint16 ingredientSeason = uint16(_generateRandomCharacteristic(_ingredientSKU));
         // spring
@@ -137,6 +148,41 @@ contract IngredientMarketplace {
         }
     }
 
+    function _ingredientIsOwnedByCaller(uint256 _ingredientSKU) internal view returns(bool) {
+        if (ingredientToOwner[_ingredientSKU] == msg.sender) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // only considering 2018 for now
+    function whatSeasonIsIt() internal view returns(uint16) {
+        uint256 timestamp = block.timestamp;
+        // until march 20 2018
+        if (timestamp < 1521504001) {
+            return 4;
+        }
+
+        // until june 21 2018
+        if (timestamp < 1529539201) {
+            return 1;
+        }
+
+        // until september 22 2017
+        if (timestamp < 1537574401) {
+            return 2;
+        }
+
+        // until december 21 2018
+        if (timestamp < 1545350401) {
+            return 3;
+        
+        // anything later, innacurate, but temporary
+        } else {
+            return 4;
+        }
+    }
     // TODO: Ingredients Generation
     // TODO: Ingredients Auction
 }
