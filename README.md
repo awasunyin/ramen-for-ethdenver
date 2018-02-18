@@ -2,8 +2,6 @@
 
 The temporary static homepage and its theme for this project was generated with jekyll and an open-sourced theme, apologies for the noisy files in the master branch. (シ_ _)シ
 
-![homepage]("./assets/img/homepage.png")
-
 *Status: Initial Prototype.*
 Ramen-Ya (from Japanese, _Ramen Shop_) is a collaborative platform for collectibles. A grosso modo, it is composed by an ecosystem of ERC721 style tokens (AKA: non fungible tokens). Ramen is a great source of energy that you might need
 after playing with CryptoKitties or just all the calories that you might burn while you try to trading with crypto using exchanges or simply because you're a developer and you need to feed yourself time to time. Here are some inspiring quotes around ramen:
@@ -173,3 +171,7 @@ will be interfaces with existing ERC721 tokens. The idea is that, e.g., if ramen
 2. The total gas price of every contract
 3. Check on probabilities, are those likelihoods actually correct?
 4. Create RamenCoin, an ERC20 token, as one of the payment methods for participating in the game
+
+## Credits
+1. Website theme Moon: https://github.com/TaylanTatli/Moon
+2. Images: Google Images 
